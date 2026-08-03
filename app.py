@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🧳 TravelTools Pro")
 st.write("### La suite logicielle d'élite pour les agences de voyage.")
-st.caption("Disponible 24h/24 — Version Sécurisée Pro")
+st.caption("Disponible 24h/24 — Version Sécurisée Directe")
 
 # Barre latérale pour le mot de passe client
 st.sidebar.header("🔑 Clé de Licence")
@@ -36,7 +36,6 @@ def appeler_openrouter_secure(prompt_text, api_key):
         "X-Title": "TravelTools Pro suite"
     }
     
-    # CHANGEMENT DE MODÈLE : Utilisation de Google Gemini (Gratuit, stable et ultra-rapide)
     data = {
         "model": "google/gemini-2.5-flash:free",
         "messages": [{"role": "user", "content": prompt_text}]
@@ -46,16 +45,16 @@ def appeler_openrouter_secure(prompt_text, api_key):
         reponse = requests.post(url, headers=headers, data=json.dumps(data), timeout=20)
         
         if reponse.status_code != 200:
-            return f"❌ Erreur du serveur OpenRouter (Code {reponse.status_code}). Le serveur est saturé, réessayez dans 3 secondes."
+            return f"❌ Erreur du serveur OpenRouter (Code {reponse.status_code})."
             
         json_data = reponse.json()
         if 'choices' in json_data and len(json_data['choices']) > 0:
             return json_data['choices']['message']['content'].strip()
         else:
-            return "⚠️ Le serveur d'IA est momentanément indisponible, veuillez recliquer sur le bouton."
+            return "⚠️ Le serveur d'IA est momentanément indisponible, veuillez recliquer."
             
     except requests.exceptions.Timeout:
-        return "⏱️ Le serveur d'IA a mis trop de temps à répondre. Veuillez réessayer."
+        return "⏱️ Le serveur d'IA a mît trop de temps à répondre."
     except Exception as e:
         return f"🚨 Erreur technique : {e}"
 
@@ -63,8 +62,8 @@ def appeler_openrouter_secure(prompt_text, api_key):
 if code_licence != "AGENCE-ELITE-2026" and code_licence != "TRAVEL-SAFE-VIP":
     st.error("❌ Code de licence invalide ou expiré.")
 else:
-    # Récupération de la clé OpenRouter cachée dans les Secrets Streamlit
-        cle_api = "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"
+    # MODIFICATION DIRECTE : Votre clé neuve est insérée directement ici
+    cle_api = "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"
 
     if cle_api:
         # =====================================================================
@@ -134,3 +133,4 @@ else:
                         resultat = appeler_openrouter_secure(prompt, cle_api)
                         st.error("🤖 Alerte Logistique Escale :")
                         st.write(resultat)
+
