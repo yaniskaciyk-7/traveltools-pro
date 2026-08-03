@@ -26,21 +26,18 @@ onglet1, onglet2, onglet3, onglet4 = st.tabs([
 
 # VOTRE FONCTION PARFAITE : Connexion directe et extraction chirurgicale Google
 def appeler_gemini_direct(prompt, api_key):
-    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
-    headers = {"Content-Type": "application/json"}
-    params = {"key": api_key}
-    data = {"contents": [{"parts": [{"text": prompt}]}]}
-    
     try:
-        r = requests.post(url, headers=headers, params=params, json=data, timeout=25)
-        if r.status_code != 200:
-            return f"❌ Erreur Google (Code {r.status_code}). Vérifiez la clé dans vos Secrets Streamlit."
-        
-        result = r.json()
-        # Votre ligne magique qui extrait le texte sans bug
-        return result["candidates"][0]["content"]["parts"][0]["text"]
+        client = genai.Client(api_key=api_key)
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+
+        return response.text
+
     except Exception as e:
-        return f"🚨 Erreur technique d'affichage : {e}"
+        return f"❌ Erreur Google : {e}"
 
 # Vérification du mot de passe
 if code_licence != "AGENCE-ELITE-2026" and code_licence != "TRAVEL-SAFE-VIP":
