@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🧳 TravelTools Pro")
 st.write("### La suite logicielle d'élite pour les agences de voyage.")
-st.caption("Disponible 24h/24 — Connexion Directe Google Gemini 1.5 Propre")
+st.caption("Disponible 24h/24 — Version Directe Google Gemini Validée")
 
 # Barre latérale pour le mot de passe client
 st.sidebar.header("🔑 Clé de Licence")
@@ -25,32 +25,21 @@ onglet1, onglet2, onglet3, onglet4 = st.tabs([
     "✈️ 4. Sécurité Escale"
 ])
 
-# Fonction de connexion DIRECTE à Google Gemini
-def appeler_gemini_direct(prompt_text, api_key):
-    url = "https://googleapis.com"
-    
-    params = {"key": api_key}
+# VOTRE FONCTION PARFAITE : Connexion directe et extraction chirurgicale Google
+def appeler_gemini_direct(prompt, api_key):
+    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
     headers = {"Content-Type": "application/json"}
-    data = {
-        "contents": [{
-            "parts": [{"text": prompt_text}]
-        }]
-    }
+    params = {"key": api_key}
+    data = {"contents": [{"parts": [{"text": prompt}]}]}
     
     try:
-        reponse = requests.post(url, headers=headers, params=params, data=json.dumps(data), timeout=25)
+        r = requests.post(url, headers=headers, params=params, json=data, timeout=25)
+        if r.status_code != 200:
+            return f"❌ Erreur Google (Code {r.status_code}). Vérifiez la clé dans vos Secrets Streamlit."
         
-        if reponse.status_code != 200:
-            return f"❌ Erreur Google (Code {reponse.status_code}). Vérifiez la clé dans vos Secrets Streamlit."
-            
-        json_data = reponse.json()
-        
-        # LIGNE ULTRA-CORRIGÉE POUR L'EXTRACTION GOOGLE GEMINI
-        if 'candidates' in json_data and len(json_data['candidates']) > 0:
-            return json_data['candidates'][0]['content']['parts'][0]['text'].strip()
-                
-        return f"⚠️ Réponse inattendue de Google : {reponse.text}"
-        
+        result = r.json()
+        # Votre ligne magique qui extrait le texte sans bug
+        return result["candidates"][0]["content"]["parts"][0]["text"]
     except Exception as e:
         return f"🚨 Erreur technique d'affichage : {e}"
 
@@ -118,7 +107,7 @@ else:
                         st.write(resultat)
 
         # =====================================================================
-        # CONTENU DE l'ONGLET 4 : SECURITE ESCALE
+        # CONTENU DE L'ONGLET 4 : SECURITE ESCALE
         # =====================================================================
         with onglet4:
             st.subheader("✈️ Agent de Sécurisation des Escales")
@@ -133,3 +122,4 @@ else:
                         resultat = appeler_gemini_direct(prompt, cle_google)
                         st.error("🤖 Alerte Logistique Escale :")
                         st.write(resultat)
+
