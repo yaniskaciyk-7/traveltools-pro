@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🧳 TravelTools Pro")
 st.write("### La suite logicielle d'élite pour les agences de voyage.")
-st.caption("Disponible 24h/24 — Connexion Directe Google Gemini v1 Stable")
+st.caption("Disponible 24h/24 — Connexion Directe Google Gemini 1.5 Propre")
 
 # Barre latérale pour le mot de passe client
 st.sidebar.header("🔑 Clé de Licence")
@@ -27,12 +27,10 @@ onglet1, onglet2, onglet3, onglet4 = st.tabs([
 
 # Fonction de connexion DIRECTE à Google Gemini
 def appeler_gemini_direct(prompt_text, api_key):
-    # LIGNE CORRIGÉE : Utilisation du modèle de production stable v1/models/gemini-1.5-flash
     url = "https://googleapis.com"
     
     params = {"key": api_key}
     headers = {"Content-Type": "application/json"}
-    
     data = {
         "contents": [{
             "parts": [{"text": prompt_text}]
@@ -47,13 +45,9 @@ def appeler_gemini_direct(prompt_text, api_key):
             
         json_data = reponse.json()
         
-        # Extraction sécurisée du texte selon la structure Google
+        # LIGNE ULTRA-CORRIGÉE POUR L'EXTRACTION GOOGLE GEMINI
         if 'candidates' in json_data and len(json_data['candidates']) > 0:
-            candidate = json_data['candidates'][0]
-            if 'content' in candidate and 'parts' in candidate['content']:
-                parts = candidate['content']['parts']
-                if len(parts) > 0 and 'text' in parts[0]:
-                    return parts[0]['text'].strip()
+            return json_data['candidates'][0]['content']['parts'][0]['text'].strip()
                 
         return f"⚠️ Réponse inattendue de Google : {reponse.text}"
         
@@ -124,7 +118,7 @@ else:
                         st.write(resultat)
 
         # =====================================================================
-        # CONTENU DE L'ONGLET 4 : SECURITE ESCALE
+        # CONTENU DE l'ONGLET 4 : SECURITE ESCALE
         # =====================================================================
         with onglet4:
             st.subheader("✈️ Agent de Sécurisation des Escales")
