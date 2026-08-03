@@ -53,7 +53,7 @@ else:
                 
                 if submit1:
                     prompt = (
-                        f"Calcule la validité pour un voyageur de nationalité {nationalite} se rendant en {destination}. "
+                        f"Calcule la validité pour un voyageer de nationalité {nationalite} se rendant en {destination}. "
                         f"Retour prévu le {date_retour}, expiration passeport le {expire_passeport}. "
                         "Dis si la règle de validité post-retour du pays est respectée ou violée et liste les formalités obligatoires (Visa/e-Visa)."
                     )
@@ -62,9 +62,11 @@ else:
                             url = "https://openrouter.ai"
                             headers = {"Authorization": f"Bearer {cle_api_real}", "Content-Type": "application/json"}
                             data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
+                            reponse = requests.post(url, headers=headers, data=json.dumps(data), timeout=20)
                             st.info("🤖 Rapport de Conformité Douanière :")
-                            st.write(requests.post(url, headers=headers, data=json.dumps(data)).json()['choices']['message']['content'].strip())
-                        except Exception as e: st.error(f"Erreur : {e}")
+                            st.write(reponse.json()['choices']['message']['content'].strip())
+                        except Exception as e: 
+                            st.error(f"Erreur : {e}")
 
         # =====================================================================
         # CONTENU DE L'ONGLET 2 : FORMATAGE ET NETTOYAGE DES PASSAGERS
@@ -91,12 +93,14 @@ else:
                             url = "https://openrouter.ai"
                             headers = {"Authorization": f"Bearer {cle_api_real}", "Content-Type": "application/json"}
                             data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
+                            reponse = requests.post(url, headers=headers, data=json.dumps(data), timeout=20)
                             st.success("🤖 Profils Passagers Sécurisés :")
-                            st.write(requests.post(url, headers=headers, data=json.dumps(data)).json()['choices']['message']['content'].strip())
-                        except Exception as e: st.error(f"Erreur : {e}")
+                            st.write(reponse.json()['choices']['message']['content'].strip())
+                        except Exception as e: 
+                            st.error(f"Erreur : {e}")
 
         # =====================================================================
-        # CONTENU DE L'ONGLET 3 : GHOSTBUSTER DE DEVIS CONCURRENTS
+        # CONTENU DE l'ONGLET 3 : GHOSTBUSTER DE DEVIS CONCURRENTS
         # =====================================================================
         with onglet3:
             st.subheader("🔥 Le 'Ghostbuster' Commercial de Devis Concurrents")
@@ -120,9 +124,11 @@ else:
                             url = "https://openrouter.ai"
                             headers = {"Authorization": f"Bearer {cle_api_real}", "Content-Type": "application/json"}
                             data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
+                            reponse = requests.post(url, headers=headers, data=json.dumps(data), timeout=20)
                             st.warning("🤖 Contre-Attaque Commerciale Prête :")
-                            st.write(requests.post(url, headers=headers, data=json.dumps(data)).json()['choices']['message']['content'].strip())
-                        except Exception as e: st.error(f"Erreur : {e}")
+                            st.write(reponse.json()['choices']['message']['content'].strip())
+                        except Exception as e: 
+                            st.error(f"Erreur : {e}")
 
         # =====================================================================
         # CONTENU DE L'ONGLET 4 : VERIFICATEUR D'ESCALE SÉCURISÉE
@@ -145,5 +151,3 @@ else:
                         try:
                             url = "https://openrouter.ai"
                             headers = {"Authorization": f"Bearer {cle_api_real}", "Content-Type": "application/json"}
-                            data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
-                            st.error("🤖 Alerte & Logistique Escale :")
