@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🧳 TravelTools Pro")
 st.write("### La suite logicielle d'élite pour les agences de voyage.")
-st.caption("Disponible 24h/24 — Connexion Directe Google Gemini (V1 Beta)")
+st.caption("Disponible 24h/24 — Connexion Directe Google Gemini v1")
 
 # Barre latérale pour le mot de passe client
 st.sidebar.header("🔑 Clé de Licence")
@@ -27,11 +27,13 @@ onglet1, onglet2, onglet3, onglet4 = st.tabs([
 
 # Fonction de connexion DIRECTE à Google Gemini
 def appeler_gemini_direct(prompt_text, api_key):
-    # LIGNE CORRIGÉE : L'adresse officielle exacte de Google Gemini 2.5 Flash
+    # LIGNE CORRIGÉE : URL officielle stable de l'API Google Gemini
     url = "https://googleapis.com"
     
     params = {"key": api_key}
     headers = {"Content-Type": "application/json"}
+    
+    # Structure de données stricte exigée par l'API Google
     data = {
         "contents": [{
             "parts": [{"text": prompt_text}]
@@ -39,11 +41,21 @@ def appeler_gemini_direct(prompt_text, api_key):
     }
     
     try:
-        reponse = requests.post(url, headers=headers, params=params, data=json.dumps(data), timeout=20)
+        reponse = requests.post(url, headers=headers, params=params, data=json.dumps(data), timeout=25)
+        
         if reponse.status_code != 200:
             return f"❌ Erreur Google (Code {reponse.status_code}). Vérifiez la clé dans vos Secrets Streamlit."
+            
         json_data = reponse.json()
-        return json_data['candidates'][0]['content']['parts'][0]['text'].strip()
+        
+        # Extraction sécurisée du texte selon le dictionnaire de Google
+        if 'candidates' in json_data and len(json_data['candidates']) > 0:
+            parts = json_data['candidates'][0]['content']['parts']
+            if len(parts) > 0:
+                return parts[0]['text'].strip()
+                
+        return f"⚠️ Réponse inattendue de Google : {reponse.text}"
+        
     except Exception as e:
         return f"🚨 Erreur technique d'affichage : {e}"
 
