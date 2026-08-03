@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🧳 TravelTools Pro")
 st.write("### La suite logicielle d'élite pour les agences de voyage.")
-st.caption("Disponible 24h/24 — Version Sécurisée Directe")
+st.caption("Disponible 24h/24 — Connexion Directe Google Gemini (Coffre-fort Sécurisé)")
 
 # Barre latérale pour le mot de passe client
 st.sidebar.header("🔑 Clé de Licence")
@@ -25,47 +25,33 @@ onglet1, onglet2, onglet3, onglet4 = st.tabs([
     "✈️ 4. Sécurité Escale"
 ])
 
-# Fonction universelle et sécurisée pour appeler OpenRouter
-def appeler_openrouter_secure(prompt_text, api_key):
-    url = "https://openrouter.ai"
-    
-    headers = {
-        "Authorization": f"Bearer {api_key}",
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://streamlit.io",
-        "X-Title": "TravelTools Pro suite"
-    }
-    
-    data = {
-        "model": "google/gemini-2.5-flash:free",
-        "messages": [{"role": "user", "content": prompt_text}]
-    }
+# Fonction de connexion DIRECTE à Google Gemini
+def appeler_gemini_direct(prompt_text, api_key):
+    url = f"https://googleapis.com{api_key}"
+    headers = {"Content-Type": "application/json"}
+    data = {"contents": [{"parts": [{"text": prompt_text}]}]}
     
     try:
         reponse = requests.post(url, headers=headers, data=json.dumps(data), timeout=20)
-        
         if reponse.status_code != 200:
-            return f"❌ Erreur du serveur OpenRouter (Code {reponse.status_code})."
-            
+            return f"❌ Erreur Google (Code {reponse.status_code}). Vérifiez la clé dans vos Secrets Streamlit."
         json_data = reponse.json()
-        if 'choices' in json_data and len(json_data['choices']) > 0:
-            return json_data['choices']['message']['content'].strip()
-        else:
-            return "⚠️ Le serveur d'IA est momentanément indisponible, veuillez recliquer."
-            
-    except requests.exceptions.Timeout:
-        return "⏱️ Le serveur d'IA a mît trop de temps à répondre."
+        return json_data['candidates']['content']['parts']['text'].strip()
     except Exception as e:
-        return f"🚨 Erreur technique : {e}"
+        return f"🚨 Erreur technique d'affichage : {e}"
 
 # Vérification du mot de passe
 if code_licence != "AGENCE-ELITE-2026" and code_licence != "TRAVEL-SAFE-VIP":
     st.error("❌ Code de licence invalide ou expiré.")
 else:
-    # MODIFICATION DIRECTE : Votre clé neuve est insérée directement ici
-    cle_api = "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"
+    # COFFRE-FORT : On récupère la clé cachée dans le serveur Streamlit
+    try:
+        cle_google = st.secrets["GEMINI_KEY"]
+    except:
+        st.warning("⚙️ En attente de la configuration de la clé GEMINI_KEY dans les Secrets de Streamlit...")
+        cle_google = None
 
-    if cle_api:
+    if cle_google:
         # =====================================================================
         # CONTENU DE L'ONGLET 1 : VERIFICATION PASSEPORT & VISA
         # =====================================================================
@@ -79,9 +65,9 @@ else:
                 submit1 = st.form_submit_button("🔍 Lancer l'Audit Douanier")
                 
                 if submit1:
-                    prompt = f"Agis en expert douanier. Dis si un voyageur de nationalité {nationalite} peut aller en {destination} avec un retour le {date_retour} et un passeport expirant le {expire_passeport}. Réponds de manière courte en français."
+                    prompt = f"Agis en expert douanier. Dis si un voyageur de nationalité {nationalite} peut aller en {destination} avec un retour le {date_retour} et un passeport expirant le {expire_passeport}. Réponds de manière courte, claire et structurée sous forme de liste en français."
                     with st.spinner("Analyse douanière en cours..."):
-                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        resultat = appeler_gemini_direct(prompt, cle_google)
                         st.info("🤖 Rapport Douane :")
                         st.write(resultat)
 
@@ -95,9 +81,9 @@ else:
                 submit2 = st.form_submit_button("🚀 Nettoyer le profil")
                 
                 if submit2:
-                    prompt = f"Agis en secrétaire de billetterie. Extrais les noms, prénoms et dates de naissance de ce texte de manière propre : {texte_vrac}."
+                    prompt = f"Agis en secrétaire de billetterie. Extrais les noms (en majuscules), prénoms et dates de naissance de ce texte sous forme de tableau propre : {texte_vrac}."
                     with st.spinner("Nettoyage en cours..."):
-                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        resultat = appeler_gemini_direct(prompt, cle_google)
                         st.success("🤖 Données Propres :")
                         st.write(resultat)
 
@@ -111,9 +97,9 @@ else:
                 submit3 = st.form_submit_button("⚡ Trouver les pièges")
                 
                 if submit3:
-                    prompt = f"Agis en directeur commercial. Trouve les points faibles cachés de ce devis de voyage et donne un court script commercial pour convaincre le client : {devis_concurrent}."
+                    prompt = f"Agis en directeur commercial de voyage d'élite. Trouve tous les points faibles, inconforts ou pièges cachés de ce devis concurrent et donne un court script de parole mot à mot percutant pour convaincre le client de signer chez nous : {devis_concurrent}."
                     with st.spinner("Analyse commerciale en cours..."):
-                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        resultat = appeler_gemini_direct(prompt, cle_google)
                         st.warning("🤖 Contre-Attaque Commerciale :")
                         st.write(resultat)
 
@@ -128,9 +114,8 @@ else:
                 submit4 = st.form_submit_button("🔍 Auditer l'escale")
                 
                 if submit4:
-                    prompt = f"Agis en expert de vol. Dis si une escale de {temps_escale} à l'aéroport de {aeroport_escale} est risquée et s'il faut un visa de transit pour un français."
+                    prompt = f"Agis en expert de vol international. Dis si une escale de {temps_escale} à l'aéroport de {aeroport_escale} est risquée pour un français (changement de terminal, sécurité, transfert bagage) et s'il faut un visa de transit ou un enregistrement type ESTA."
                     with st.spinner("Vérification de l'escale..."):
-                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        resultat = appeler_gemini_direct(prompt, cle_google)
                         st.error("🤖 Alerte Logistique Escale :")
                         st.write(resultat)
-
