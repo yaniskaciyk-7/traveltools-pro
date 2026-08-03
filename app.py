@@ -1,6 +1,5 @@
 import streamlit as st
-import requests
-import json
+from google import genai
 
 # 1. PARAMÈTRES DU SITE INTERNET
 st.set_page_config(
