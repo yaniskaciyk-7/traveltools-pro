@@ -36,29 +36,26 @@ def appeler_openrouter_secure(prompt_text, api_key):
         "X-Title": "TravelTools Pro suite"
     }
     
-    # Utilisation d'un modèle ultra-stable et gratuit (Llama 3.1 ou Mistral selon dispo OpenRouter)
+    # CHANGEMENT DE MODÈLE : Utilisation de Google Gemini (Gratuit, stable et ultra-rapide)
     data = {
-        "model": "meta-llama/llama-3-8b-instruct:free",
+        "model": "google/gemini-2.5-flash:free",
         "messages": [{"role": "user", "content": prompt_text}]
     }
     
     try:
         reponse = requests.post(url, headers=headers, data=json.dumps(data), timeout=20)
         
-        # Sécurité : Si le serveur renvoie un code d'erreur (401, 403, 429...)
         if reponse.status_code != 200:
-            return f"❌ Erreur du serveur OpenRouter (Code {reponse.status_code}). Vérifiez vos crédits ou les paramètres du Secret."
+            return f"❌ Erreur du serveur OpenRouter (Code {reponse.status_code}). Le serveur est saturé, réessayez dans 3 secondes."
             
         json_data = reponse.json()
         if 'choices' in json_data and len(json_data['choices']) > 0:
-            return json_data['choices'][0]['message']['content'].strip()
+            return json_data['choices']['message']['content'].strip()
         else:
-            return f"⚠️ Réponse inattendue d'OpenRouter : {reponse.text}"
+            return "⚠️ Le serveur d'IA est momentanément indisponible, veuillez recliquer sur le bouton."
             
     except requests.exceptions.Timeout:
         return "⏱️ Le serveur d'IA a mis trop de temps à répondre. Veuillez réessayer."
-    except json.JSONDecodeError:
-        return "🧩 Erreur de décodage des données (Le serveur a renvoyé du texte brut au lieu de JSON)."
     except Exception as e:
         return f"🚨 Erreur technique : {e}"
 
