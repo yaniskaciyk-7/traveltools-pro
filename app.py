@@ -63,7 +63,7 @@ if code_licence != "AGENCE-ELITE-2026" and code_licence != "TRAVEL-SAFE-VIP":
     st.error("❌ Code de licence invalide ou expiré.")
 else:
     # MODIFICATION DIRECTE : Votre clé neuve est insérée directement ici
-    cle_api = "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"
+    cle_api = "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"
 
     if cle_api:
         # =====================================================================
