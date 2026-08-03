@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🧳 TravelTools Pro")
 st.write("### La suite logicielle d'élite pour les agences de voyage.")
-st.caption("Disponible 24h/24 — Version Sécurisée")
+st.caption("Disponible 24h/24 — Version Sécurisée Pro")
 
 # Barre latérale pour le mot de passe client
 st.sidebar.header("🔑 Clé de Licence")
@@ -25,26 +25,55 @@ onglet1, onglet2, onglet3, onglet4 = st.tabs([
     "✈️ 4. Sécurité Escale"
 ])
 
+# Fonction universelle et sécurisée pour appeler OpenRouter
+def appeler_openrouter_secure(prompt_text, api_key):
+    url = "https://openrouter.ai"
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://streamlit.io",
+        "X-Title": "TravelTools Pro suite"
+    }
+    
+    # Utilisation d'un modèle ultra-stable et gratuit (Llama 3.1 ou Mistral selon dispo OpenRouter)
+    data = {
+        "model": "meta-llama/llama-3-8b-instruct:free",
+        "messages": [{"role": "user", "content": prompt_text}]
+    }
+    
+    try:
+        reponse = requests.post(url, headers=headers, data=json.dumps(data), timeout=20)
+        
+        # Sécurité : Si le serveur renvoie un code d'erreur (401, 403, 429...)
+        if reponse.status_code != 200:
+            return f"❌ Erreur du serveur OpenRouter (Code {reponse.status_code}). Vérifiez vos crédits ou les paramètres du Secret."
+            
+        json_data = reponse.json()
+        if 'choices' in json_data and len(json_data['choices']) > 0:
+            return json_data['choices'][0]['message']['content'].strip()
+        else:
+            return f"⚠️ Réponse inattendue d'OpenRouter : {reponse.text}"
+            
+    except requests.exceptions.Timeout:
+        return "⏱️ Le serveur d'IA a mis trop de temps à répondre. Veuillez réessayer."
+    except json.JSONDecodeError:
+        return "🧩 Erreur de décodage des données (Le serveur a renvoyé du texte brut au lieu de JSON)."
+    except Exception as e:
+        return f"🚨 Erreur technique : {e}"
+
 # Vérification du mot de passe
 if code_licence != "AGENCE-ELITE-2026" and code_licence != "TRAVEL-SAFE-VIP":
     st.error("❌ Code de licence invalide ou expiré.")
 else:
-    # Récupération de la clé OpenRouter cachée en sécurité
+    # Récupération de la clé OpenRouter cachée dans les Secrets Streamlit
     try:
         cle_api = st.secrets["OPENROUTER_KEY"]
     except:
-        st.warning("⚙️ Clé de sécurité en cours de configuration par le serveur...")
+        st.warning("⚙️ Clé de sécurité manquante ou mal configurée dans le panneau 'Secrets' de Streamlit.")
         cle_api = None
 
     if cle_api:
-        # En-tête obligatoire exigé par OpenRouter en 2026 pour les modèles gratuits
-        headers_openrouter = {
-            "Authorization": f"Bearer {cle_api}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": "https://streamlit.io", # Obligatoire pour OpenRouter
-            "X-Title": "TravelTools Pro App"       # Obligatoire pour OpenRouter
-        }
-
         # =====================================================================
         # CONTENU DE L'ONGLET 1 : VERIFICATION PASSEPORT & VISA
         # =====================================================================
@@ -58,15 +87,11 @@ else:
                 submit1 = st.form_submit_button("🔍 Lancer l'Audit Douanier")
                 
                 if submit1:
-                    prompt = f"Vérifie si un voyageur de nationalité {nationalite} peut aller en {destination} avec un retour le {date_retour} et un passeport expirant le {expire_passeport}. Réponds de manière courte en français."
-                    with st.spinner("Analyse..."):
-                        try:
-                            url = "https://openrouter.ai"
-                            data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
-                            reponse = requests.post(url, headers=headers_openrouter, data=json.dumps(data), timeout=15)
-                            st.info("🤖 Rapport Douane :")
-                            st.write(reponse.json()['choices']['message']['content'].strip())
-                        except Exception as e: st.error(f"Erreur : {e}")
+                    prompt = f"Agis en expert douanier. Dis si un voyageur de nationalité {nationalite} peut aller en {destination} avec un retour le {date_retour} et un passeport expirant le {expire_passeport}. Réponds de manière courte en français."
+                    with st.spinner("Analyse douanière en cours..."):
+                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        st.info("🤖 Rapport Douane :")
+                        st.write(resultat)
 
         # =====================================================================
         # CONTENU DE L'ONGLET 2 : FORMATAGE DES PASSAGERS
@@ -78,15 +103,11 @@ else:
                 submit2 = st.form_submit_button("🚀 Nettoyer le profil")
                 
                 if submit2:
-                    prompt = f"Extrais les noms, prénoms et dates de naissance de ce texte de manière propre : {texte_vrac}."
-                    with st.spinner("Nettoyage..."):
-                        try:
-                            url = "https://openrouter.ai"
-                            data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
-                            reponse = requests.post(url, headers=headers_openrouter, data=json.dumps(data), timeout=15)
-                            st.success("🤖 Données Propres :")
-                            st.write(reponse.json()['choices']['message']['content'].strip())
-                        except Exception as e: st.error(f"Erreur : {e}")
+                    prompt = f"Agis en secrétaire de billetterie. Extrais les noms, prénoms et dates de naissance de ce texte de manière propre : {texte_vrac}."
+                    with st.spinner("Nettoyage en cours..."):
+                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        st.success("🤖 Données Propres :")
+                        st.write(resultat)
 
         # =====================================================================
         # CONTENU DE L'ONGLET 3 : GHOSTBUSTER DE DEVIS
@@ -98,15 +119,11 @@ else:
                 submit3 = st.form_submit_button("⚡ Trouver les pièges")
                 
                 if submit3:
-                    prompt = f"Trouve les points faibles cachés de ce devis de voyage et donne un court script commercial pour convaincre le client : {devis_concurrent}."
-                    with st.spinner("Analyse commerciale..."):
-                        try:
-                            url = "https://openrouter.ai"
-                            data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
-                            reponse = requests.post(url, headers=headers_openrouter, data=json.dumps(data), timeout=15)
-                            st.warning("🤖 Contre-Attaque Commerciale :")
-                            st.write(reponse.json()['choices']['message']['content'].strip())
-                        except Exception as e: st.error(f"Erreur : {e}")
+                    prompt = f"Agis en directeur commercial. Trouve les points faibles cachés de ce devis de voyage et donne un court script commercial pour convaincre le client : {devis_concurrent}."
+                    with st.spinner("Analyse commerciale en cours..."):
+                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        st.warning("🤖 Contre-Attaque Commerciale :")
+                        st.write(resultat)
 
         # =====================================================================
         # CONTENU DE L'ONGLET 4 : SECURITE ESCALE
@@ -119,12 +136,8 @@ else:
                 submit4 = st.form_submit_button("🔍 Auditer l'escale")
                 
                 if submit4:
-                    prompt = f"Dis si une escale de {temps_escale} à l'aéroport de {aeroport_escale} est risquée et s'il faut un visa de transit pour un français."
-                    with st.spinner("Vérification..."):
-                        try:
-                            url = "https://openrouter.ai"
-                            data = {"model": "meta-llama/llama-3-8b-instruct:free", "messages": [{"role": "user", "content": prompt}]}
-                            reponse = requests.post(url, headers=headers_openrouter, data=json.dumps(data), timeout=15)
-                            st.error("🤖 Alerte Logistique Escale :")
-                            st.write(reponse.json()['choices']['message']['content'].strip())
-                        except Exception as e: st.error(f"Erreur : {e}")
+                    prompt = f"Agis en expert de vol. Dis si une escale de {temps_escale} à l'aéroport de {aeroport_escale} est risquée et s'il faut un visa de transit pour un français."
+                    with st.spinner("Vérification de l'escale..."):
+                        resultat = appeler_openrouter_secure(prompt, cle_api)
+                        st.error("🤖 Alerte Logistique Escale :")
+                        st.write(resultat)
