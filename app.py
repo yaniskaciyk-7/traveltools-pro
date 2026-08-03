@@ -11,7 +11,7 @@ st.set_page_config(
 
 st.title("🧳 TravelTools Pro")
 st.write("### La suite logicielle d'élite pour les agences de voyage.")
-st.caption("Disponible 24h/24 — Connexion Directe Google Gemini (Corrigée)")
+st.caption("Disponible 24h/24 — Connexion Directe Google Gemini (V1 Beta)")
 
 # Barre latérale pour le mot de passe client
 st.sidebar.header("🔑 Clé de Licence")
@@ -27,20 +27,23 @@ onglet1, onglet2, onglet3, onglet4 = st.tabs([
 
 # Fonction de connexion DIRECTE à Google Gemini
 def appeler_gemini_direct(prompt_text, api_key):
-    # LIGNE CORRIGÉE : L'adresse internet est maintenant isolée de la clé
+    # LIGNE CORRIGÉE : L'adresse officielle exacte de Google Gemini 2.5 Flash
     url = "https://googleapis.com"
     
-    # On passe la clé de manière propre dans les paramètres sécurisés
     params = {"key": api_key}
     headers = {"Content-Type": "application/json"}
-    data = {"contents": [{"parts": [{"text": prompt_text}]}]}
+    data = {
+        "contents": [{
+            "parts": [{"text": prompt_text}]
+        }]
+    }
     
     try:
         reponse = requests.post(url, headers=headers, params=params, data=json.dumps(data), timeout=20)
         if reponse.status_code != 200:
             return f"❌ Erreur Google (Code {reponse.status_code}). Vérifiez la clé dans vos Secrets Streamlit."
         json_data = reponse.json()
-        return json_data['candidates']['content']['parts']['text'].strip()
+        return json_data['candidates'][0]['content']['parts'][0]['text'].strip()
     except Exception as e:
         return f"🚨 Erreur technique d'affichage : {e}"
 
