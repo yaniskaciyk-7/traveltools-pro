@@ -64,11 +64,7 @@ if code_licence != "AGENCE-ELITE-2026" and code_licence != "TRAVEL-SAFE-VIP":
     st.error("❌ Code de licence invalide ou expiré.")
 else:
     # Récupération de la clé OpenRouter cachée dans les Secrets Streamlit
-    try:
-        cle_api = st.secrets["OPENROUTER_KEY"]
-    except:
-        st.warning("⚙️ Clé de sécurité manquante ou mal configurée dans le panneau 'Secrets' de Streamlit.")
-        cle_api = None
+        cle_api = "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"
 
     if cle_api:
         # =====================================================================
